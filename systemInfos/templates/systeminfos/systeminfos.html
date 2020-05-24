@@ -1,0 +1,101 @@
+
+
+<!DOCTYPE html>
+
+{% block content %}
+<style>
+.center {
+ text-align: center
+}
+</style>
+<html lang="en">
+<head>
+    {{ systeminfo_list.hostname }}
+    <style>
+    table, th, td {
+    border: 1px solid black;
+<!--    background-color:#00FF00;-->
+    tr:hover;
+    margin-left:auto;margin-right:auto;
+    </style>
+    <meta charset="UTF-8">
+    <title>systeminfos</title>
+</head>
+<body>
+<h1 class="center">System</h1>
+<p class="center">Hostname: {{ systeminfo_list.get_hostname }}</p>
+<p class="center">FQDN: {{ systeminfo_list.get_FQDN }}</p>
+<p class="center">System: {{ systeminfo_list.System }}</p>
+<p class="center">Machine hardware: {{ systeminfo_list.machine_hardware }}</p>
+<p class="center">Release: {{ systeminfo_list.uname.release }}</p>
+<p class="center">Boot Time: {{ systeminfo_list.boot_time }}</p>
+
+<h1 class="center">CPU</h1>
+<p class="center">Physical Core(s): {{ systeminfo_list.get_physical_core }}</p>
+<p class="center">Logical Core(s): {{ systeminfo_list.get_total_core }}</p>
+<p class="center">CPU freq: {{ systeminfo_list.get_cpu_freq }}Hz</p>
+
+<p class="center">CPU</p>
+{% for key, value in systeminfo_list.get_cpu_usage_per_core.items %}
+<li class="center">core {{ key }} - {{ value }}%</li>
+{% endfor %}
+
+<p class="center">CPU usage: {{ systeminfo_list.get_cpu_usage }}%</p>
+<h1 class="center">Memory</h1>
+<p class="center">Total Memory: {{ systeminfo_list.get_total_memory }}</p>
+<p class="center">Available Memory: {{ systeminfo_list.get_available_memory }}</p>
+<p class="center">Used Memory: {{ systeminfo_list.get_used_memory }}</p>
+<p class="center">Percentage Used: {{ systeminfo_list.get_percent_memory }}%</p>
+<h1 class="center">Disk INFO</h1>
+<table class="center">
+  <tr>
+    <th>device</th><th>mountpoint</th><th>fstype</th><th>total</th><th>used</th><th>free</th><th>percent</th>
+
+  </tr>
+{% for diskpart in systeminfo_list.get_partitions %}
+  <tr>
+      <td>{{diskpart.device}} </td><td>{{diskpart.mountpoint}}</td><td>{{diskpart.fstype}}</td><td>{{diskpart.total}}</td><td>{{diskpart.used}}</td><td>{{diskpart.free}}</td><td>{{diskpart.percent}}%</td>
+
+  </tr>
+<!--    {% for device, mountpoint, fstype, opts in diskpart.items %}-->
+<!--<li>{{ device }} {{ mountpoint }} {{ fstype }} {{ opts }}</li>-->
+<!--    {% endfor %}-->
+{% endfor %}
+</table>
+
+<h1 class="center">Network</h1>
+{% for networkname,networkinfo in systeminfo_list.get_network.items %}
+   <table class="center">
+    <caption>{{networkname}}</caption>
+  <tr>
+    <th>Address</th><th>Netmask</th><th>Broadcast</th>
+  </tr>
+    {% for networkaddress in networkinfo %}
+  <tr>
+      <th>{{networkaddress.address}}</th><th>{{networkaddress.netmask}}</th><th>{{networkaddress.broadcast}}</th>
+  </tr>
+    {% endfor %}
+    </table>
+<br>
+<br>
+{% endfor %}
+
+
+  <table class="center">
+      <caption>Processes</caption>
+      <tr>
+    <th>pid</th><th>name</th><th>create_time</th><th>cores</th><th>cpu_usage</th><th>status</th>><th>nice<th>memory_usage</th><th>n_threads</th><th>username</th>
+    </tr>
+{% for processes in systeminfo_list.get_proc %}
+      <tr>
+     {% for  key, value in processes.items %}
+        <th>{{value}}</th>
+      {% endfor %}
+    </tr>
+{% endfor %}
+</table>
+</body>
+</html>
+
+
+{% endblock %}
