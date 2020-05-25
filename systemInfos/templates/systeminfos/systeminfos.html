@@ -1,26 +1,18 @@
-
+{% load static %}
 
 <!DOCTYPE html>
-
 {% block content %}
-<style>
-.center {
- text-align: center
-}
-</style>
+
 <html lang="en">
 <head>
     {{ systeminfo_list.hostname }}
-    <style>
-    table, th, td {
-    border: 1px solid black;
-<!--    background-color:#00FF00;-->
-    tr:hover;
-    margin-left:auto;margin-right:auto;
-    </style>
     <meta charset="UTF-8">
     <title>systeminfos</title>
+    <link href="{% static 'systemInfos/StyleSheet.css' %}"
+          rel="stylesheet" type="text/css"/>
+
 </head>
+
 <body>
 <h1 class="center">System</h1>
 <p class="center">Hostname: {{ systeminfo_list.get_hostname }}</p>
@@ -47,7 +39,7 @@
 <p class="center">Used Memory: {{ systeminfo_list.get_used_memory }}</p>
 <p class="center">Percentage Used: {{ systeminfo_list.get_percent_memory }}%</p>
 <h1 class="center">Disk INFO</h1>
-<table class="center">
+<table class="gridtable center">
   <tr>
     <th>device</th><th>mountpoint</th><th>fstype</th><th>total</th><th>used</th><th>free</th><th>percent</th>
 
@@ -61,35 +53,34 @@
 <!--<li>{{ device }} {{ mountpoint }} {{ fstype }} {{ opts }}</li>-->
 <!--    {% endfor %}-->
 {% endfor %}
-</table>
+</table >
 
 <h1 class="center">Network</h1>
 {% for networkname,networkinfo in systeminfo_list.get_network.items %}
-   <table class="center">
+   <table class="gridtable center tbl">
     <caption>{{networkname}}</caption>
   <tr>
     <th>Address</th><th>Netmask</th><th>Broadcast</th>
   </tr>
     {% for networkaddress in networkinfo %}
   <tr>
-      <th>{{networkaddress.address}}</th><th>{{networkaddress.netmask}}</th><th>{{networkaddress.broadcast}}</th>
+      <td>{{networkaddress.address}}</td><td>{{networkaddress.netmask}}</td><td>{{networkaddress.broadcast}}</td>
   </tr>
     {% endfor %}
     </table>
 <br>
-<br>
 {% endfor %}
 
+<h1 class="center">Processes</h1>
 
-  <table class="center">
-      <caption>Processes</caption>
+  <table class="gridtable center">
       <tr>
     <th>pid</th><th>name</th><th>create_time</th><th>cores</th><th>cpu_usage</th><th>status</th>><th>nice<th>memory_usage</th><th>n_threads</th><th>username</th>
     </tr>
 {% for processes in systeminfo_list.get_proc %}
       <tr>
      {% for  key, value in processes.items %}
-        <th>{{value}}</th>
+        <td>{{value}}</td>
       {% endfor %}
     </tr>
 {% endfor %}
