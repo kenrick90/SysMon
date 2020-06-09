@@ -4,6 +4,7 @@ import platform
 import psutil
 import time
 import collections
+import subprocess
 import datetime
 # Create your models here.
 def get_size(bytes, suffix="B"):
@@ -120,6 +121,25 @@ class SystemInfo(models.Model):
                     'n_threads': n_threads, 'username': username,
                 })
         return processes
+
+    def get_logs(self):
+        #use cat /var/log/messages toget the file
+        result=subprocess.run(['cat','/var/log/messages'], stdout=subprocess.PIPE)
+        #get a list of log messages
+        lines=result.stdout.decode('utf-8').split('\n')
+        #remove last new line character
+        lines.pop()
+        logs=[]
+
+        for line in lines:
+            log={}
+            log['timestamp']=" ".join(line.split()[:3])
+            log['hostname']=line.split()[3]
+            log['process']=line.split()[4][:-1]
+            log['message']=" ".join(line.split()[5:])
+            logs.append(log)
+        return logs
+
 
 
 
