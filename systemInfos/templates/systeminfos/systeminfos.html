@@ -7,113 +7,164 @@
 <head>
     {{ systeminfo_list.hostname }}
     <meta charset="UTF-8">
-    <title>systeminfos</title>
-    <link href="{% static 'systemInfos/StyleSheet.css' %}"
-          rel="stylesheet" type="text/css"/>
-    <script src="{% static 'systemInfos/process.js' %}"  type="text/javascript"></script>
+    <title>sys teminfos</title>
+    <link href="{% static 'systemInfos/StyleSheet.css' %}" rel="stylesheet" type="text/css"/>
+    <script src="{% static 'systemInfos/filter.js' %}"  type="text/javascript"></script>
+    <script src="{% static 'systemInfos/tableSearch.js' %}" type="text/javascript"></script>
+<!--     <meta http-equiv="refresh" content="10; URL=http://127.0.0.1:8000/">-->
 </head>
-<div class="w3-container w3-teal">
-  <h1>SysMon</h1>
-</div>
+  <h1 style="  font-size: 40px"; >SysMon</h1>
 <body>
-<h1 class="center">System</h1>
-<p class="center">Hostname: {{ systeminfo_list.get_hostname }}</p>
-<p class="center">FQDN: {{ systeminfo_list.get_FQDN }}</p>
-<p class="center">System: {{ systeminfo_list.System }}</p>
-<p class="center">Machine hardware: {{ systeminfo_list.machine_hardware }}</p>
-<p class="center">Release: {{ systeminfo_list.uname.release }}</p>
-<p class="center">Boot Time: {{ systeminfo_list.boot_time }}</p>
+<div class="sidebar light-grey bar-block" style="width:10%">
+  <h3 class="bar-item">Menu</h3>
+  <a href="#cpu" class="bar-item button">CPU</a>
+  <a href="#memory" class="bar-item button">Memory</a>
+  <a href="#disk_partition" class="bar-item button">Disk Partition</a>
+  <a href="#network" class="bar-item button">Network</a>
+  <a href="#processes" class="bar-item button">Processes</a>
+  <a href="#logs" class="bar-item button">Logs</a>
 
-<h1 class="center">CPU</h1>
-<p class="center">Physical Core(s): {{ systeminfo_list.get_physical_core }}</p>
-<p class="center">Logical Core(s): {{ systeminfo_list.get_total_core }}</p>
-<p class="center">CPU freq: {{ systeminfo_list.get_cpu_freq }}Hz</p>
+</div>
 
-<p class="center">CPU</p>
-{% for key, value in systeminfo_list.get_cpu_usage_per_core.items %}
-<li class="center">core {{ key }} - {{ value }}%</li>
-{% endfor %}
 
-<p class="center">CPU usage: {{ systeminfo_list.get_cpu_usage }}%</p>
-<h1 class="center">Memory</h1>
-<p class="center">Total Memory: {{ systeminfo_list.get_total_memory }}</p>
-<p class="center">Available Memory: {{ systeminfo_list.get_available_memory }}</p>
-<p class="center">Used Memory: {{ systeminfo_list.get_used_memory }}</p>
-<p class="center">Percentage Used: {{ systeminfo_list.get_percent_memory }}%</p>
-<h1 class="center">Disk INFO</h1>
-<table class="gridtable">
-  <tr>
-    <th>device</th><th>mountpoint</th><th>fstype</th><th>total</th><th>used</th><th>free</th><th>percent</th>
+<!--    <h1 class="center">System</h1>-->
+    <div class="center">
+        <p >Hostname: {{ systeminfo_list.get_hostname }}</p>
+<!--    <p >FQDN: {{ systeminfo_list.get_FQDN }}</p>-->
+    <p >{{ systeminfo_list.System }}</p>
+<!--    <p >Machine hardware: {{ systeminfo_list.machine_hardware }}</p>-->
+    <p >Release: {{ systeminfo_list.uname.release }}</p>
+    <p >Boot Time: {{ systeminfo_list.boot_time }}</p>
 
-  </tr>
-{% for diskpart in systeminfo_list.get_partitions %}
-  <tr>
-      <td>{{diskpart.device}} </td><td>{{diskpart.mountpoint}}</td><td>{{diskpart.fstype}}</td><td>{{diskpart.total}}</td><td>{{diskpart.used}}</td><td>{{diskpart.free}}</td><td>{{diskpart.percent}}%</td>
+    </div>
 
-  </tr>
-<!--    {% for device, mountpoint, fstype, opts in diskpart.items %}-->
-<!--<li>{{ device }} {{ mountpoint }} {{ fstype }} {{ opts }}</li>-->
-<!--    {% endfor %}-->
-{% endfor %}
-</table >
 
-<h1 class="center">Network</h1>
-{% for networkname,networkinfo in systeminfo_list.get_network.items %}
-   <table class="gridtable">
-    <caption>{{networkname}}</caption>
-  <tr>
-    <th>Address</th><th>Netmask</th><th>Broadcast</th>
-  </tr>
-    {% for networkaddress in networkinfo %}
-  <tr>
-      <td>{{networkaddress.address}}</td><td>{{networkaddress.netmask}}</td><td>{{networkaddress.broadcast}}</td>
-  </tr>
-    {% endfor %}
+    <h1 id="cpu" class="center">CPU</h1>
+    <p class="center">Physical Core(s): {{ systeminfo_list.get_physical_core }} Logical Core(s): {{ systeminfo_list.get_total_core }}</p>
+    <p class="center">CPU freq: {{ systeminfo_list.get_cpu_freq }}Hz</p>
+    <table class="gridtable" style="width:40%; margin-left:30%; margin-right:30%;">
+        <thead>
+            <tr>
+                <th>Core</th><th>Utilization</th>
+            </tr>
+        </thead>
+        {% for key, value in systeminfo_list.get_cpu_usage_per_core.items %}
+            <tr>
+                <td>{{key}}</td><td>{{value}}%</td>
+            </tr>
+        {% endfor %}
+
     </table>
-<br>
-{% endfor %}
+    <p class="center">CPU Usage:</p>
+    {% with cpu_usage=systeminfo_list.get_cpu_usage %}
+    <div class="center">
+            <meter  class="center" id="CpuUsage" title="Cpu Usage" max="100" high="80" value={{ cpu_usage }}></meter>
+            <span class="center" data-value={{ cpu_usage }}%></span>
+    </div>
+    {% endwith %}
 
-<h1 class="center">Processes</h1>
- <p class="center"><input type="text" id="processInput" onkeyup="searchProcessTable()" placeholder="Search for processes.."></p>
-<table class="gridtable center" id="processTable">
-    <tr>
-        <th>pid</th>
-        <th>name</th>
-        <th>create_time</th>
-        <th>cores</th>
-        <th>cpu_usage</th>
-        <th>status</th>
-        <th>nice</th>
-        <th>memory_usage</th>
-        <th>n_threads</th>
-        <th>username</th>
-    </tr>
-{% for processes in systeminfo_list.get_proc %}
-    <tr>
-     {% for key, value in processes.items %}
-        <td>{{value}}</td>
-      {% endfor %}
-    </tr>
-{% endfor %}
-</table>
+    <h1 id="memory" class="center">Memory</h1>
+    <table class="gridtable" style="width:40%; margin-left:30%; margin-right:30%;">
+        <thead>
+           <tr>
+                <th>Total Memory  </th>
+                <th>Available Memory  </th>
+                <th>Used Memory </th>
+                <th>Percentage Used </th>
+            </tr>
+           <tr>
+                <td>{{ systeminfo_list.get_total_memory }} </td>
+                <td>{{ systeminfo_list.get_available_memory }}</td>
+                <td>{{ systeminfo_list.get_used_memory }}</td>
+                <td>{{ systeminfo_list.get_percent_memory }}%</td>
+            </tr>
 
-<h1 class="center">Logs</h1>
- <p class="center"><input type="text" id="logInput" onkeyup="searchLogTable()" placeholder="Search for log.."></p>
-<table class="gridtable center" id="logTable">
-    <tr>
-        <th>timestamp</th>
-        <th>hostname</th>
-        <th>process</th>
-        <th>message</th>
-    </tr>
-{% for log in systeminfo_list.get_logs %}
+
+        </thead>
+    </table>
+
+    <h1 id="disk_partition"class="center">Disk Partition</h1>
+
+    <table class="gridtable">
       <tr>
-     {% for key, value in log.items %}
-        <td>{{value}}</td>
-      {% endfor %}
-    </tr>
-{% endfor %}
-</table>
+        <th>Device</th><th>Mountpoint</th><th>FStype</th><th>Total</th><th>Used</th><th>Free</th><th>Percent</th>
+
+      </tr>
+    {% for diskpart in systeminfo_list.get_partitions %}
+      <tr>
+          <td>{{diskpart.device}} </td><td>{{diskpart.mountpoint}}</td><td>{{diskpart.fstype}}</td><td>{{diskpart.total}}</td><td>{{diskpart.used}}</td><td>{{diskpart.free}}</td><td>{{diskpart.percent}}%</td>
+
+      </tr>
+    <!--    {% for device, mountpoint, fstype, opts in diskpart.items %}-->
+    <!--<li>{{ device }} {{ mountpoint }} {{ fstype }} {{ opts }}</li>-->
+    <!--    {% endfor %}-->
+    {% endfor %}
+    </table >
+
+    <h1 id="network" class="center">Network</h1>
+    <table class="gridtable">
+        <tr>
+            <th>Interface</th><th>Address</th><th>Netmask</th><th>Broadcast</th>
+        </tr>
+        {% for networkname,networkinfo in systeminfo_list.get_network.items %}
+            {% for networkaddress in networkinfo %}
+            <tr>
+                <td>{{networkname}}</td><td>{{networkaddress.address}}</td><td>{{networkaddress.netmask}}</td><td>{{networkaddress.broadcast}}</td>
+            </tr>
+            {% endfor %}
+        {% endfor %}
+    </table>
+
+
+    <h1 id="processes" class="center">Processes</h1>
+     <p class="center"><input type="text" id="processInput" onkeyup="searchProcessTable()" placeholder="Search for processes.."></p>
+    <table class="gridtable center" id="processTable">
+        <thead>
+            <tr>
+                <th index=0>pid <div class="filter"></div> </th>
+                <th index=1>name <div class="filter"></div> </th>
+                <th index=2>create_time <div class="filter"></div></th>
+                <th index=3>cores <div class="filter"></div></th>
+                <th index=4>cpu_usage <div class="filter"></div></th>
+                <th index=5>status <div class="filter"></div></th>
+                <th index=6>nice <div class="filter"></div></th>
+                <th index=7>memory_usage <div class="filter"></div></th>
+                <th index=8>n_threads <div class="filter"></div></th>
+                <th index=9>username <div class="filter"></div></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for processes in systeminfo_list.get_proc %}
+                <tr>
+                 {% for key, value in processes.items %}
+                    <td>{{value}}</td>
+                  {% endfor %}
+                </tr>
+            {% endfor %}
+         </tbody>
+    </table>
+
+    <h1 id="logs" class="center">Logs</h1>
+     <p class="center"><input type="text" id="logInput" onkeyup="searchLogTable()" placeholder="Search for log.."></p>
+    <table class="gridtable center" id="logTable">
+        <thead>
+            <tr>
+                <th>timestamp</th>
+                <th>hostname</th>
+                <th>process</th>
+                <th>message</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for log in systeminfo_list.get_logs %}
+                  <tr>
+                 {% for key, value in log.items %}
+                    <td>{{value}}</td>
+                  {% endfor %}
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 
 </body>
 </html>

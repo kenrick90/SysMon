@@ -75,3 +75,14 @@ function searchLogTable() {
     }
   }
 }
+
+// Code goes here
+
+$(document).ready(function(){
+
+    $(".grid thead td").click(function(){
+      showFilterOption(this);
+    });
+
+});
+

@@ -27,7 +27,6 @@ class SystemInfo(models.Model):
     machine_hardware = platform.machine()
     uname = platform.uname()
     boot_time = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(psutil.boot_time()))
-
     cpufreq = psutil.cpu_freq()
     def get_hostname(self):
         return socket.gethostname()
@@ -145,4 +144,8 @@ class SystemInfo(models.Model):
 
 
     # hostname = models.CharField(max_length=200)
+
+class CPU(models.Model):
+    timestamp = models.CharField(max_length=30)
+    cpu_percentage = models.IntegerField()
 
