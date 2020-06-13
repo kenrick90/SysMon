@@ -7,3 +7,5 @@ A simple WEB UI running on django that is tested on Centos 7.4 that provides a o
 4.Network information
 5.Processes
 6.Logs
+
+of the system that it is running on
